@@ -2,26 +2,26 @@
 
 require "forwardable"
 
-class CSV
+class HBCSV
   #
-  # A CSV::Row is part Array and part Hash.  It retains an order for the fields
+  # A HBCSV::Row is part Array and part Hash.  It retains an order for the fields
   # and allows duplicates just as an Array would, but also allows you to access
   # fields by name just as you could if they were in a Hash.
   #
-  # All rows returned by CSV will be constructed from this class, if header row
+  # All rows returned by HBCSV will be constructed from this class, if header row
   # processing is activated.
   #
   class Row
     #
-    # Construct a new CSV::Row from +headers+ and +fields+, which are expected
+    # Construct a new HBCSV::Row from +headers+ and +fields+, which are expected
     # to be Arrays.  If one Array is shorter than the other, it will be padded
     # with +nil+ objects.
     #
     # The optional +header_row+ parameter can be set to +true+ to indicate, via
-    # CSV::Row.header_row?() and CSV::Row.field_row?(), that this is a header
+    # HBCSV::Row.header_row?() and HBCSV::Row.field_row?(), that this is a header
     # row.  Otherwise, the row is assumes to be a field row.
     #
-    # A CSV::Row object supports the following Array methods through delegation:
+    # A HBCSV::Row object supports the following Array methods through delegation:
     #
     # * empty?()
     # * length()
@@ -132,7 +132,7 @@ class CSV
     #   []=( header, offset, value )
     #   []=( index, value )
     #
-    # Looks up the field by the semantics described in CSV::Row.field() and
+    # Looks up the field by the semantics described in HBCSV::Row.field() and
     # assigns the +value+.
     #
     # Assigning past the end of the row with an index will set all pairs between
@@ -204,7 +204,7 @@ class CSV
     #   delete( index )
     #
     # Used to remove a pair from the row by +header+ or +index+.  The pair is
-    # located as described in CSV::Row.field().  The deleted pair is returned,
+    # located as described in HBCSV::Row.field().  The deleted pair is returned,
     # or +nil+ if a pair could not be found.
     #
     def delete(header_or_index, minimum_index = 0)
@@ -238,7 +238,7 @@ class CSV
     # This method accepts any number of arguments which can be headers, indices,
     # Ranges of either, or two-element Arrays containing a header and offset.
     # Each argument will be replaced with a field lookup as described in
-    # CSV::Row.field().
+    # HBCSV::Row.field().
     #
     # If called with no arguments, all fields are returned.
     #
@@ -272,7 +272,7 @@ class CSV
     #
     # This method will return the index of a field with the provided +header+.
     # The +offset+ can be used to locate duplicate header names, as described in
-    # CSV::Row.field().
+    # HBCSV::Row.field().
     #
     def index(header, minimum_index = 0)
       # find the pair
@@ -320,7 +320,7 @@ class CSV
     # same order as +other+.
     #
     def ==(other)
-      return @row == other.row if other.is_a? CSV::Row
+      return @row == other.row if other.is_a? HBCSV::Row
       @row == other
     end
 
@@ -340,7 +340,7 @@ class CSV
     alias_method :to_ary, :to_a
 
     #
-    # Returns the row as a CSV String.  Headers are not used.  Equivalent to:
+    # Returns the row as a HBCSV String.  Headers are not used.  Equivalent to:
     #
     #   csv_row.fields.to_csv( options )
     #

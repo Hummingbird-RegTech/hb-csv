@@ -4,25 +4,25 @@ require "csv"
 
 require "benchmark/ips"
 
-csv_text = <<CSV
+csv_text = <<HBCSV
 foo,bar,,baz
 hoge,,temo,
 roo,goo,por,kosh
-CSV
+HBCSV
 
 convert_nil = ->(s) {s || ""}
 
 Benchmark.ips do |r|
   r.report "not convert" do
-    CSV.parse(csv_text)
+    HBCSV.parse(csv_text)
   end
 
   r.report "converter" do
-    CSV.parse(csv_text, converters: convert_nil)
+    HBCSV.parse(csv_text, converters: convert_nil)
   end
 
   r.report "option" do
-    CSV.parse(csv_text, nil_value: "")
+    HBCSV.parse(csv_text, nil_value: "")
   end
 
   r.compare!

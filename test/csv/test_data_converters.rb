@@ -8,13 +8,13 @@
 
 require_relative "base"
 
-class TestCSV::DataConverters < TestCSV
+class TestHBCSV::DataConverters < TestHBCSV
   extend DifferentOFS
 
   def setup
     super
     @data   = "Numbers,:integer,1,:float,3.015"
-    @parser = CSV.new(@data)
+    @parser = HBCSV.new(@data)
 
     @custom = lambda { |field| field =~ /\A:(\S.*?)\s*\Z/ ? $1.to_sym : field }
 
@@ -24,24 +24,24 @@ class TestCSV::DataConverters < TestCSV
   def test_builtin_integer_converter
     # does convert
     [-5, 1, 10000000000].each do |n|
-      assert_equal(n, CSV::Converters[:integer][n.to_s])
+      assert_equal(n, HBCSV::Converters[:integer][n.to_s])
     end
 
     # does not convert
     (%w{junk 1.0} + [""]).each do |str|
-      assert_equal(str, CSV::Converters[:integer][str])
+      assert_equal(str, HBCSV::Converters[:integer][str])
     end
   end
 
   def test_builtin_float_converter
     # does convert
     [-5.1234, 0, 2.3e-11].each do |n|
-      assert_equal(n, CSV::Converters[:float][n.to_s])
+      assert_equal(n, HBCSV::Converters[:float][n.to_s])
     end
 
     # does not convert
     (%w{junk 1..0 .015F} + [""]).each do |str|
-      assert_equal(str, CSV::Converters[:float][str])
+      assert_equal(str, HBCSV::Converters[:float][str])
     end
   end
 
@@ -49,69 +49,69 @@ class TestCSV::DataConverters < TestCSV
     # does convert
     assert_instance_of(
       Date,
-      CSV::Converters[:date][@win_safe_time_str.sub(/\d+:\d+:\d+ /, "")]
+      HBCSV::Converters[:date][@win_safe_time_str.sub(/\d+:\d+:\d+ /, "")]
     )
 
     # does not convert
-    assert_instance_of(String, CSV::Converters[:date]["junk"])
+    assert_instance_of(String, HBCSV::Converters[:date]["junk"])
   end
 
   def test_builtin_date_time_converter
     # does convert
     assert_instance_of( DateTime,
-                        CSV::Converters[:date_time][@win_safe_time_str] )
+                        HBCSV::Converters[:date_time][@win_safe_time_str] )
 
     # does not convert
-    assert_instance_of(String, CSV::Converters[:date_time]["junk"])
+    assert_instance_of(String, HBCSV::Converters[:date_time]["junk"])
   end
 
   def test_builtin_date_time_converter_iso8601_date
     iso8601_string = "2018-01-14"
     datetime = DateTime.new(2018, 1, 14)
     assert_equal(datetime,
-                 CSV::Converters[:date_time][iso8601_string])
+                 HBCSV::Converters[:date_time][iso8601_string])
   end
 
   def test_builtin_date_time_converter_iso8601_minute
     iso8601_string = "2018-01-14T22:25"
     datetime = DateTime.new(2018, 1, 14, 22, 25)
     assert_equal(datetime,
-                 CSV::Converters[:date_time][iso8601_string])
+                 HBCSV::Converters[:date_time][iso8601_string])
   end
 
   def test_builtin_date_time_converter_iso8601_second
     iso8601_string = "2018-01-14T22:25:19"
     datetime = DateTime.new(2018, 1, 14, 22, 25, 19)
     assert_equal(datetime,
-                 CSV::Converters[:date_time][iso8601_string])
+                 HBCSV::Converters[:date_time][iso8601_string])
   end
 
   def test_builtin_date_time_converter_iso8601_under_second
     iso8601_string = "2018-01-14T22:25:19.1"
     datetime = DateTime.new(2018, 1, 14, 22, 25, 19.1)
     assert_equal(datetime,
-                 CSV::Converters[:date_time][iso8601_string])
+                 HBCSV::Converters[:date_time][iso8601_string])
   end
 
   def test_builtin_date_time_converter_iso8601_under_second_offset
     iso8601_string = "2018-01-14T22:25:19.1+09:00"
     datetime = DateTime.new(2018, 1, 14, 22, 25, 19.1, "+9")
     assert_equal(datetime,
-                 CSV::Converters[:date_time][iso8601_string])
+                 HBCSV::Converters[:date_time][iso8601_string])
   end
 
   def test_builtin_date_time_converter_iso8601_offset
     iso8601_string = "2018-01-14T22:25:19+09:00"
     datetime = DateTime.new(2018, 1, 14, 22, 25, 19, "+9")
     assert_equal(datetime,
-                 CSV::Converters[:date_time][iso8601_string])
+                 HBCSV::Converters[:date_time][iso8601_string])
   end
 
   def test_builtin_date_time_converter_iso8601_utc
     iso8601_string = "2018-01-14T22:25:19Z"
     datetime = DateTime.new(2018, 1, 14, 22, 25, 19)
     assert_equal(datetime,
-                 CSV::Converters[:date_time][iso8601_string])
+                 HBCSV::Converters[:date_time][iso8601_string])
   end
 
   def test_convert_with_builtin_integer
@@ -168,7 +168,7 @@ class TestCSV::DataConverters < TestCSV
   def test_builtin_all_nested_combo_converter
     # setup parser...
     @data   << ",#{@win_safe_time_str}"        # add a DateTime field
-    @parser =  CSV.new(@data)                  # reset parser
+    @parser =  HBCSV.new(@data)                  # reset parser
     assert_nothing_raised(Exception) { @parser.convert(:all) }
 
     # and use
@@ -209,7 +209,7 @@ class TestCSV::DataConverters < TestCSV
   end
 
   def test_convert_with_custom_code_using_field_info_header
-    @parser = CSV.new(@data, headers: %w{one two three four five})
+    @parser = HBCSV.new(@data, headers: %w{one two three four five})
 
     # define custom converter that uses field header information...
     assert_nothing_raised(Exception) do
@@ -227,20 +227,20 @@ class TestCSV::DataConverters < TestCSV
     converter = lambda { |field| field.nil? }
     row = nil
     assert_nothing_raised(Exception) do
-      row = CSV.parse_line('nil,', converters: converter)
+      row = HBCSV.parse_line('nil,', converters: converter)
     end
     assert_equal([false, true], row);
   end
 
   def test_shortcut_interface
     assert_equal( ["Numbers", ":integer", 1, ":float", 3.015],
-                  CSV.parse_line(@data, converters: :numeric) )
+                  HBCSV.parse_line(@data, converters: :numeric) )
 
     assert_equal( ["Numbers", ":integer", 1, ":float", 3.015],
-                  CSV.parse_line(@data, converters: [:integer, :float]) )
+                  HBCSV.parse_line(@data, converters: [:integer, :float]) )
 
     assert_equal( ["Numbers", :integer, 1, :float, 3.015],
-                  CSV.parse_line(@data, converters: [:numeric, @custom]) )
+                  HBCSV.parse_line(@data, converters: [:numeric, @custom]) )
   end
 
   def test_unconverted_fields
@@ -250,7 +250,7 @@ class TestCSV::DataConverters < TestCSV
       ["\n", Array.new, Array.new] ].each do |test, fields, unconverted|
       row = nil
       assert_nothing_raised(Exception) do
-        row = CSV.parse_line( test,
+        row = HBCSV.parse_line( test,
                               converters:         [:numeric, @custom],
                               unconverted_fields: true )
       end
@@ -260,13 +260,13 @@ class TestCSV::DataConverters < TestCSV
       assert_equal(unconverted, row.unconverted_fields)
     end
 
-    data = <<-CSV
+    data = <<-HBCSV
 first,second,third
 1,2,3
-    CSV
+    HBCSV
     row = nil
     assert_nothing_raised(Exception) do
-      row = CSV.parse_line( data,
+      row = HBCSV.parse_line( data,
                             converters:         :numeric,
                             unconverted_fields: true,
                             headers:            :first_row )
@@ -277,7 +277,7 @@ first,second,third
     assert_equal(%w{1 2 3}, row.unconverted_fields)
 
     assert_nothing_raised(Exception) do
-      row = CSV.parse_line( data,
+      row = HBCSV.parse_line( data,
                             converters:         :numeric,
                             unconverted_fields: true,
                             headers:            :first_row,
@@ -290,7 +290,7 @@ first,second,third
     assert_equal(%w{first second third}, row.unconverted_fields)
 
     assert_nothing_raised(Exception) do
-      row = CSV.parse_line( data,
+      row = HBCSV.parse_line( data,
                             converters:         :numeric,
                             unconverted_fields: true,
                             headers:            :first_row,
@@ -304,7 +304,7 @@ first,second,third
     assert_equal(%w{first second third}, row.unconverted_fields)
 
     assert_nothing_raised(Exception) do
-      row = CSV.parse_line( data,
+      row = HBCSV.parse_line( data,
                             converters:         :numeric,
                             unconverted_fields: true,
                             headers:            %w{my new headers},
@@ -320,11 +320,11 @@ first,second,third
 
   def test_nil_value
     assert_equal(["nil", "", "a"],
-                 CSV.parse_line(',"",a', nil_value: "nil"))
+                 HBCSV.parse_line(',"",a', nil_value: "nil"))
   end
 
   def test_empty_value
     assert_equal([nil, "empty", "a"],
-                 CSV.parse_line(',"",a', empty_value: "empty"))
+                 HBCSV.parse_line(',"",a', empty_value: "empty"))
   end
 end

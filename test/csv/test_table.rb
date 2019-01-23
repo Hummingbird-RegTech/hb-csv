@@ -8,24 +8,24 @@
 
 require_relative "base"
 
-class TestCSV::Table < TestCSV
+class TestHBCSV::Table < TestHBCSV
   extend DifferentOFS
 
   def setup
     super
-    @rows  = [ CSV::Row.new(%w{A B C}, [1, 2, 3]),
-               CSV::Row.new(%w{A B C}, [4, 5, 6]),
-               CSV::Row.new(%w{A B C}, [7, 8, 9]) ]
-    @table = CSV::Table.new(@rows)
+    @rows  = [ HBCSV::Row.new(%w{A B C}, [1, 2, 3]),
+               HBCSV::Row.new(%w{A B C}, [4, 5, 6]),
+               HBCSV::Row.new(%w{A B C}, [7, 8, 9]) ]
+    @table = HBCSV::Table.new(@rows)
 
-    @header_table = CSV::Table.new(
-      [CSV::Row.new(%w{A B C}, %w{A B C}, true)] + @rows
+    @header_table = HBCSV::Table.new(
+      [HBCSV::Row.new(%w{A B C}, %w{A B C}, true)] + @rows
     )
   end
 
   def test_initialze
     assert_not_nil(@table)
-    assert_instance_of(CSV::Table, @table)
+    assert_instance_of(HBCSV::Table, @table)
   end
 
   def test_modes
@@ -54,7 +54,7 @@ class TestCSV::Table < TestCSV
   end
 
   def test_headers_empty
-    t = CSV::Table.new([])
+    t = HBCSV::Table.new([])
     assert_equal Array.new, t.headers
   end
 
@@ -118,7 +118,7 @@ class TestCSV::Table < TestCSV
     @table[2] = [10, 11, 12]
     assert_equal([%w[A B C], [1, 2, 3], [4, 5, 6], [10, 11, 12]], @table.to_a)
 
-    @table[3] = CSV::Row.new(%w[A B C], [13, 14, 15])
+    @table[3] = HBCSV::Row.new(%w[A B C], [13, 14, 15])
     assert_equal( [%w[A B C], [1, 2, 3], [4, 5, 6], [10, 11, 12], [13, 14, 15]],
                   @table.to_a )
 
@@ -148,13 +148,13 @@ class TestCSV::Table < TestCSV
                   @table.to_a )
 
     # verify resulting table
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 A,B,C,Type,Index
 1,100,3,data,1
 4,200,6,data,2
 10,,12,data,3
 13,,15,data,
-    CSV
+    HBCSV
 
     # with headers
     @header_table["Type"] = "data"
@@ -198,8 +198,8 @@ A,B,C,Type,Index
   end
 
   def test_set_by_col_with_header_row
-    r  = [ CSV::Row.new(%w{X Y Z}, [97, 98, 99], true) ]
-    t = CSV::Table.new(r)
+    r  = [ HBCSV::Row.new(%w{X Y Z}, [97, 98, 99], true) ]
+    t = HBCSV::Table.new(r)
     t.by_col!
     t['A'] = [42]
     assert_equal(['A'], t['A'])
@@ -256,9 +256,9 @@ A,B,C,Type,Index
     ############################
     @table.by_col_or_row!
 
-    @table.each { |row| assert_instance_of(CSV::Row, row) }
+    @table.each { |row| assert_instance_of(HBCSV::Row, row) }
     @table.by_col.each { |tuple| assert_instance_of(Array, tuple) }
-    @table.each { |row| assert_instance_of(CSV::Row, row) }
+    @table.each { |row| assert_instance_of(HBCSV::Row, row) }
   end
 
   def test_each_split
@@ -286,12 +286,12 @@ A,B,C,Type,Index
   end
 
   def test_to_csv
-    csv = <<-CSV
+    csv = <<-HBCSV
 A,B,C
 1,2,3
 4,5,6
 7,8,9
-    CSV
+    HBCSV
 
     # normal conversion
     assert_equal(csv, @table.to_csv)
@@ -312,11 +312,11 @@ A,B,C
     assert_equal(@table, @table << [10, 11, 12])
 
     # Array append
-    assert_equal(CSV::Row.new(%w[A B C], [10, 11, 12]), @table[-1])
+    assert_equal(HBCSV::Row.new(%w[A B C], [10, 11, 12]), @table[-1])
 
     # Row append
-    assert_equal(@table, @table << CSV::Row.new(%w[A B C], [13, 14, 15]))
-    assert_equal(CSV::Row.new(%w[A B C], [13, 14, 15]), @table[-1])
+    assert_equal(@table, @table << HBCSV::Row.new(%w[A B C], [13, 14, 15]))
+    assert_equal(HBCSV::Row.new(%w[A B C], [13, 14, 15]), @table[-1])
   end
 
   def test_delete_mixed_one
@@ -330,11 +330,11 @@ A,B,C
     assert_equal(@rows.map { |row| row["A"] }, @table.delete("A"))
 
     # verify resulting table
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 B,C
 2,3
 8,9
-    CSV
+    HBCSV
   end
 
   def test_delete_mixed_multiple
@@ -352,11 +352,11 @@ B,C
                  @table.delete(1, "A"))
 
     # verify resulting table
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 B,C
 2,3
 8,9
-    CSV
+    HBCSV
   end
 
   def test_delete_column
@@ -369,12 +369,12 @@ B,C
     assert_equal(@rows.map { |row| row["C"] }, @table.delete("C"))
 
     # verify resulting table
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 B
 2
 5
 8
-    CSV
+    HBCSV
   end
 
   def test_delete_row
@@ -387,16 +387,16 @@ B
     assert_raise(TypeError) { @table.delete("C") }
 
     # verify resulting table
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 A,B,C
 1,2,3
 7,8,9
-    CSV
+    HBCSV
   end
 
   def test_delete_with_blank_rows
     data = "col1,col2\nra1,ra2\n\nrb1,rb2"
-    table = CSV.parse(data, :headers => true)
+    table = HBCSV.parse(data, :headers => true)
     assert_equal(["ra2", nil, "rb2"], table.delete("col2"))
   end
 
@@ -408,10 +408,10 @@ A,B,C
     assert_equal(@table, @table.delete_if { |row| (row["B"] % 2).zero? })
 
     # verify resulting table
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 A,B,C
 4,5,6
-    CSV
+    HBCSV
   end
 
   def test_delete_if_row_without_block
@@ -426,10 +426,10 @@ A,B,C
     assert_equal(@table, enum.each { |row| (row["B"] % 2).zero? })
 
     # verify resulting table
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 A,B,C
 4,5,6
-    CSV
+    HBCSV
   end
 
   def test_delete_if_column
@@ -439,12 +439,12 @@ A,B,C
     @table.by_col!
 
     assert_equal(@table, @table.delete_if { |h, v| h > "A" })
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 A
 1
 4
 7
-    CSV
+    HBCSV
   end
 
   def test_delete_if_column_without_block
@@ -458,12 +458,12 @@ A
     assert_equal(@table.headers.size, enum.size)
 
     assert_equal(@table, enum.each { |h, v| h > "A" })
-    assert_equal(<<-CSV, @table.to_csv)
+    assert_equal(<<-HBCSV, @table.to_csv)
 A
 1
 4
 7
-    CSV
+    HBCSV
   end
 
   def test_values_at
@@ -565,7 +565,7 @@ A
   end
 
   def test_dig_cell
-    table = CSV::Table.new([CSV::Row.new(["A"], [["foo", ["bar", ["baz"]]]])])
+    table = HBCSV::Table.new([HBCSV::Row.new(["A"], [["foo", ["bar", ["baz"]]]])])
 
     # by row, col then cell
     assert_equal("foo", table.dig(0, "A", 0))
@@ -577,7 +577,7 @@ A
   end
 
   def test_dig_cell_no_dig
-    table = CSV::Table.new([CSV::Row.new(["A"], ["foo"])])
+    table = HBCSV::Table.new([HBCSV::Row.new(["A"], ["foo"])])
 
     # by row, col then cell
     assert_raise(TypeError) do

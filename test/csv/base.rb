@@ -1,9 +1,9 @@
 # frozen_string_literal: false
 require "test/unit"
 
-require "csv"
+require "hb_csv"
 
 require_relative "../lib/with_different_ofs.rb"
 
-class TestCSV < Test::Unit::TestCase
+class TestHBCSV < Test::Unit::TestCase
 end

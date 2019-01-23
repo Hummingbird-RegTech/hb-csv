@@ -26,10 +26,10 @@ Benchmark.ips do |x|
   enc_utf8 = (hiraganas.join(",") + "\r\n") * n_rows
   enc_sjis = enc_utf8.encode("Windows-31J")
 
-  x.report("unquoted") { CSV.parse(unquoted) }
-  x.report("quoted") { CSV.parse(quoted) }
-  x.report("include col_sep") { CSV.parse(inc_col_sep) }
-  x.report("include row_sep") { CSV.parse(inc_row_sep) }
-  x.report("encode utf-8") { CSV.parse(enc_utf8) }
-  x.report("encode sjis") { CSV.parse(enc_sjis) }
+  x.report("unquoted") { HBCSV.parse(unquoted) }
+  x.report("quoted") { HBCSV.parse(quoted) }
+  x.report("include col_sep") { HBCSV.parse(inc_col_sep) }
+  x.report("include row_sep") { HBCSV.parse(inc_row_sep) }
+  x.report("encode utf-8") { HBCSV.parse(enc_utf8) }
+  x.report("encode sjis") { HBCSV.parse(enc_sjis) }
 end

@@ -2,21 +2,21 @@
 
 require "forwardable"
 
-class CSV
+class HBCSV
   #
-  # A CSV::Table is a two-dimensional data structure for representing CSV
+  # A HBCSV::Table is a two-dimensional data structure for representing HBCSV
   # documents.  Tables allow you to work with the data by row or column,
-  # manipulate the data, and even convert the results back to CSV, if needed.
+  # manipulate the data, and even convert the results back to HBCSV, if needed.
   #
-  # All tables returned by CSV will be constructed from this class, if header
+  # All tables returned by HBCSV will be constructed from this class, if header
   # row processing is activated.
   #
   class Table
     #
-    # Construct a new CSV::Table from +array_of_rows+, which are expected
-    # to be CSV::Row objects.  All rows are assumed to have the same headers.
+    # Construct a new HBCSV::Table from +array_of_rows+, which are expected
+    # to be HBCSV::Row objects.  All rows are assumed to have the same headers.
     #
-    # A CSV::Table object supports the following Array methods through
+    # A HBCSV::Table object supports the following Array methods through
     # delegation:
     #
     # * empty?()
@@ -152,7 +152,7 @@ class CSV
     # calling by_col!() or by_row!().
     #
     # Rows may be set to an Array of values (which will inherit the table's
-    # headers()) or a CSV::Row.
+    # headers()) or a HBCSV::Row.
     #
     # Columns may be set to a single value, which is copied to each row of the
     # column, or an Array of values.  Arrays of values are assigned to rows top
@@ -216,8 +216,8 @@ class CSV
 
     #
     # Adds a new row to the bottom end of this table.  You can provide an Array,
-    # which will be converted to a CSV::Row (inheriting the table's headers()),
-    # or a CSV::Row.
+    # which will be converted to a HBCSV::Row (inheriting the table's headers()),
+    # or a HBCSV::Row.
     #
     # This method returns the table for chaining.
     #
@@ -318,7 +318,7 @@ class CSV
 
     # Returns +true+ if all rows of this table ==() +other+'s rows.
     def ==(other)
-      return @table == other.table if other.is_a? CSV::Table
+      return @table == other.table if other.is_a? HBCSV::Table
       @table == other
     end
 
@@ -336,7 +336,7 @@ class CSV
     end
 
     #
-    # Returns the table as a complete CSV String.  Headers will be listed first,
+    # Returns the table as a complete HBCSV String.  Headers will be listed first,
     # then all of the field rows.
     #
     # This method assumes you want the Table.headers(), unless you explicitly

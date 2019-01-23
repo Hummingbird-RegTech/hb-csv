@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-require 'csv'
+require 'hb_csv'
 require 'benchmark/ips'
 
-CSV.open("/tmp/file.csv", "w") do |csv|
+HBCSV.open("/tmp/file.csv", "w") do |csv|
   csv << ["player", "gameA", "gameB"]
   1000.times do
     csv << ['"Alice"', "84.0", "79.5"]
@@ -12,23 +12,23 @@ CSV.open("/tmp/file.csv", "w") do |csv|
 end
 
 Benchmark.ips do |x|
-  x.report "CSV.foreach" do
-    CSV.foreach("/tmp/file.csv") do |row|
+  x.report "HBCSV.foreach" do
+    HBCSV.foreach("/tmp/file.csv") do |row|
     end
   end
 
-  x.report "CSV#shift" do
-    CSV.open("/tmp/file.csv") do |csv|
+  x.report "HBCSV#shift" do
+    HBCSV.open("/tmp/file.csv") do |csv|
       while _line = csv.shift
       end
     end
   end
 
-  x.report "CSV.read" do
-    CSV.read("/tmp/file.csv")
+  x.report "HBCSV.read" do
+    HBCSV.read("/tmp/file.csv")
   end
 
-  x.report "CSV.table" do
-    CSV.table("/tmp/file.csv")
+  x.report "HBCSV.table" do
+    HBCSV.table("/tmp/file.csv")
   end
 end

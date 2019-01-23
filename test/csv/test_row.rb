@@ -8,45 +8,45 @@
 
 require_relative "base"
 
-class TestCSV::Row < TestCSV
+class TestHBCSV::Row < TestHBCSV
   extend DifferentOFS
 
   def setup
     super
-    @row = CSV::Row.new(%w{A B C A A}, [1, 2, 3, 4])
+    @row = HBCSV::Row.new(%w{A B C A A}, [1, 2, 3, 4])
   end
 
   def test_initialize
     # basic
-    row = CSV::Row.new(%w{A B C}, [1, 2, 3])
+    row = HBCSV::Row.new(%w{A B C}, [1, 2, 3])
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([["A", 1], ["B", 2], ["C", 3]], row.to_a)
 
     # missing headers
-    row = CSV::Row.new(%w{A}, [1, 2, 3])
+    row = HBCSV::Row.new(%w{A}, [1, 2, 3])
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([["A", 1], [nil, 2], [nil, 3]], row.to_a)
 
     # missing fields
-    row = CSV::Row.new(%w{A B C}, [1, 2])
+    row = HBCSV::Row.new(%w{A B C}, [1, 2])
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([["A", 1], ["B", 2], ["C", nil]], row.to_a)
   end
 
   def test_row_type
     # field rows
-    row = CSV::Row.new(%w{A B C}, [1, 2, 3])         # implicit
+    row = HBCSV::Row.new(%w{A B C}, [1, 2, 3])         # implicit
     assert_not_predicate(row, :header_row?)
     assert_predicate(row, :field_row?)
-    row = CSV::Row.new(%w{A B C}, [1, 2, 3], false)  # explicit
+    row = HBCSV::Row.new(%w{A B C}, [1, 2, 3], false)  # explicit
     assert_not_predicate(row, :header_row?)
     assert_predicate(row, :field_row?)
 
     # header row
-    row = CSV::Row.new(%w{A B C}, [1, 2, 3], true)
+    row = HBCSV::Row.new(%w{A B C}, [1, 2, 3], true)
     assert_predicate(row, :header_row?)
     assert_not_predicate(row, :field_row?)
   end
@@ -321,7 +321,7 @@ class TestCSV::Row < TestCSV
   end
 
   def test_to_a
-    row = CSV::Row.new(%w{A B C}, [1, 2, 3]).to_a
+    row = HBCSV::Row.new(%w{A B C}, [1, 2, 3]).to_a
     assert_instance_of(Array, row)
     row.each do |pair|
       assert_instance_of(Array, pair)
@@ -371,7 +371,7 @@ class TestCSV::Row < TestCSV
   end
 
   def test_inspect_shows_symbol_headers_as_bare_attributes
-    str = CSV::Row.new(@row.headers.map { |h| h.to_sym }, @row.fields).inspect
+    str = HBCSV::Row.new(@row.headers.map { |h| h.to_sym }, @row.fields).inspect
     @row.each do |header, field|
       assert_include(str, "#{header}:#{field.inspect}",
                      "Header field pair not found.")
@@ -379,7 +379,7 @@ class TestCSV::Row < TestCSV
   end
 
   def test_can_be_compared_with_other_classes
-    assert_not_nil(CSV::Row.new([ ], [ ]), "The row was nil")
+    assert_not_nil(HBCSV::Row.new([ ], [ ]), "The row was nil")
   end
 
   def test_can_be_compared_when_not_a_row
@@ -400,7 +400,7 @@ class TestCSV::Row < TestCSV
   end
 
   def test_dig_cell
-    row = CSV::Row.new(%w{A}, [["foo", ["bar", ["baz"]]]])
+    row = HBCSV::Row.new(%w{A}, [["foo", ["bar", ["baz"]]]])
 
     assert_equal("foo", row.dig(0, 0))
     assert_equal("bar", row.dig(0, 1, 0))
@@ -410,7 +410,7 @@ class TestCSV::Row < TestCSV
   end
 
   def test_dig_cell_no_dig
-    row = CSV::Row.new(%w{A}, ["foo"])
+    row = HBCSV::Row.new(%w{A}, ["foo"])
 
     assert_raise(TypeError) do
       row.dig(0, 0)

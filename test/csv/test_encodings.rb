@@ -8,7 +8,7 @@
 
 require_relative "base"
 
-class TestCSV::Encodings < TestCSV
+class TestHBCSV::Encodings < TestHBCSV
   extend DifferentOFS
 
   def setup
@@ -87,7 +87,7 @@ class TestCSV::Encodings < TestCSV
         no_warnings do
           Encoding.default_external = encoding
         end
-        result = CSV.read(@temp_csv_path)[0][0]
+        result = HBCSV.read(@temp_csv_path)[0][0]
       ensure
         no_warnings do
           Encoding.default_external = default_external
@@ -102,9 +102,9 @@ class TestCSV::Encodings < TestCSV
   #######################################################################
 
   def test_auto_line_ending_detection
-    # arrange data to place a \r at the end of CSV's read ahead point
+    # arrange data to place a \r at the end of HBCSV's read ahead point
     encode_for_tests([["a" * 509]], row_sep: "\r\n") do |data|
-      assert_equal("\r\n".encode(data.encoding), CSV.new(data).row_sep)
+      assert_equal("\r\n".encode(data.encoding), HBCSV.new(data).row_sep)
     end
   end
 
@@ -112,14 +112,14 @@ class TestCSV::Encodings < TestCSV
     encode_for_tests([%w[abc def]]) do |data|
       %w[col_sep row_sep quote_char].each do |csv_char|
         assert_equal( "|".encode(data.encoding),
-                      CSV.new(data, csv_char.to_sym => "|").send(csv_char) )
+                      HBCSV.new(data, csv_char.to_sym => "|").send(csv_char) )
       end
     end
   end
 
   def test_parser_works_with_encoded_headers
     encode_for_tests([%w[one two three], %w[1 2 3]]) do |data|
-      parsed = CSV.parse(data, headers: true)
+      parsed = HBCSV.parse(data, headers: true)
       assert_all?(parsed.headers, "Wrong data encoding.") {|h| h.encoding == data.encoding}
       parsed.each do |row|
         assert_all?(row.fields, "Wrong data encoding.") {|f| f.encoding == data.encoding}
@@ -129,7 +129,7 @@ class TestCSV::Encodings < TestCSV
 
   def test_built_in_converters_transcode_to_utf_8_then_convert
     encode_for_tests([%w[one two three], %w[1 2 3]]) do |data|
-      parsed = CSV.parse(data, converters: :integer)
+      parsed = HBCSV.parse(data, converters: :integer)
       assert_all?(parsed[0], "Wrong data encoding.") {|f| f.encoding == data.encoding}
       assert_equal([1, 2, 3], parsed[1])
     end
@@ -137,7 +137,7 @@ class TestCSV::Encodings < TestCSV
 
   def test_built_in_header_converters_transcode_to_utf_8_then_convert
     encode_for_tests([%w[one two three], %w[1 2 3]]) do |data|
-      parsed = CSV.parse( data, headers:           true,
+      parsed = HBCSV.parse( data, headers:           true,
                                 header_converters: :downcase )
       assert_all?(parsed.headers, "Wrong data encoding.") {|h| h.encoding.name == "UTF-8"}
       assert_all?(parsed[0].fields, "Wrong data encoding.") {|f| f.encoding == data.encoding}
@@ -148,7 +148,7 @@ class TestCSV::Encodings < TestCSV
     encode_for_tests([%w[abc def]]) do |data|
       # read and write in encoding
       File.open(@temp_csv_path, "wb:#{data.encoding.name}") { |f| f << data }
-      CSV.open(@temp_csv_path, "rb:#{data.encoding.name}") do |csv|
+      HBCSV.open(@temp_csv_path, "rb:#{data.encoding.name}") do |csv|
         csv.each do |row|
           assert_all?(row, "Wrong data encoding.") {|f| f.encoding == data.encoding}
         end
@@ -158,7 +158,7 @@ class TestCSV::Encodings < TestCSV
       File.open(@temp_csv_path, "wb:UTF-32BE:#{data.encoding.name}") do |f|
         f << data
       end
-      CSV.open(@temp_csv_path, "rb:UTF-32BE:#{data.encoding.name}") do |csv|
+      HBCSV.open(@temp_csv_path, "rb:UTF-32BE:#{data.encoding.name}") do |csv|
         csv.each do |row|
           assert_all?(row, "Wrong data encoding.") {|f| f.encoding == data.encoding}
         end
@@ -170,7 +170,7 @@ class TestCSV::Encodings < TestCSV
     encode_for_tests([%w[abc def]]) do |data|
       # read and write in encoding
       File.open(@temp_csv_path, "wb", encoding: data.encoding) { |f| f << data }
-      CSV.foreach(@temp_csv_path, encoding: data.encoding) do |row|
+      HBCSV.foreach(@temp_csv_path, encoding: data.encoding) do |row|
         row.each {|f| assert_equal(f.encoding, data.encoding)}
       end
 
@@ -178,7 +178,7 @@ class TestCSV::Encodings < TestCSV
       File.open(@temp_csv_path, "wb:UTF-32BE:#{data.encoding.name}") do |f|
         f << data
       end
-      CSV.foreach( @temp_csv_path,
+      HBCSV.foreach( @temp_csv_path,
                    encoding: "UTF-32BE:#{data.encoding.name}" ) do |row|
         assert_all?(row, "Wrong data encoding.") {|f| f.encoding == data.encoding}
       end
@@ -189,21 +189,21 @@ class TestCSV::Encodings < TestCSV
     encode_for_tests([%w[abc def]]) do |data|
       # read and write in encoding
       File.open(@temp_csv_path, "wb:#{data.encoding.name}") { |f| f << data }
-      rows = CSV.read(@temp_csv_path, encoding: data.encoding.name)
+      rows = HBCSV.read(@temp_csv_path, encoding: data.encoding.name)
       assert_all?(rows.flatten, "Wrong data encoding.") {|f| f.encoding == data.encoding}
 
       # read and write with transcoding
       File.open(@temp_csv_path, "wb:UTF-32BE:#{data.encoding.name}") do |f|
         f << data
       end
-      rows = CSV.read( @temp_csv_path,
+      rows = HBCSV.read( @temp_csv_path,
                        encoding: "UTF-32BE:#{data.encoding.name}" )
       assert_all?(rows.flatten, "Wrong data encoding.") {|f| f.encoding == data.encoding}
     end
   end
 
   #################################
-  ### Write CSV in any Encoding ###
+  ### Write HBCSV in any Encoding ###
   #################################
 
   def test_can_write_csv_in_any_encoding
@@ -223,10 +223,10 @@ class TestCSV::Encodings < TestCSV
 
       # writing to files
       data = encode_ary([%w[abc d,ef], %w[123 456 ]], encoding)
-      CSV.open(@temp_csv_path, "wb:#{encoding.name}") do |f|
+      HBCSV.open(@temp_csv_path, "wb:#{encoding.name}") do |f|
         data.each { |row| f << row }
       end
-      assert_equal(data, CSV.read(@temp_csv_path, encoding: encoding.name))
+      assert_equal(data, HBCSV.read(@temp_csv_path, encoding: encoding.name))
     end
   end
 
@@ -248,22 +248,22 @@ class TestCSV::Encodings < TestCSV
 
   def test_explicit_encoding
     bug9766 = '[ruby-core:62113] [Bug #9766]'
-    s = CSV.generate(encoding: "Windows-31J") do |csv|
+    s = HBCSV.generate(encoding: "Windows-31J") do |csv|
       csv << ["foo".force_encoding("ISO-8859-1"), "\u3042"]
     end
     assert_equal(["foo,\u3042\n".encode(Encoding::Windows_31J), Encoding::Windows_31J], [s, s.encoding], bug9766)
   end
 
   def test_row_separator_detection_with_invalid_encoding
-    csv = CSV.new("invalid,\xF8\r\nvalid,x\r\n".force_encoding("UTF-8"),
+    csv = HBCSV.new("invalid,\xF8\r\nvalid,x\r\n".force_encoding("UTF-8"),
                   encoding: "UTF-8")
     assert_equal("\r\n", csv.row_sep)
   end
 
   def test_invalid_encoding_row_error
-    csv = CSV.new("invalid,\xF8\r\nvalid,x\r\n".force_encoding("UTF-8"),
+    csv = HBCSV.new("invalid,\xF8\r\nvalid,x\r\n".force_encoding("UTF-8"),
                   encoding: "UTF-8")
-    error = assert_raise(CSV::MalformedCSVError) do
+    error = assert_raise(HBCSV::MalformedHBCSVError) do
       csv.shift
     end
     assert_equal("Invalid byte sequence in UTF-8 in line 1.",
@@ -277,19 +277,19 @@ class TestCSV::Encodings < TestCSV
     orig_fields = fields
     fields   = encode_ary(fields, encoding)
     data = ary_to_data(fields, options)
-    parsed   = CSV.parse(data, options)
+    parsed   = HBCSV.parse(data, options)
     assert_equal(fields, parsed)
     parsed.flatten.each_with_index do |field, i|
       assert_equal(encoding, field.encoding, "Field[#{i + 1}] was transcoded.")
     end
     File.open(@temp_csv_path, "wb") {|f| f.print(data)}
-    CSV.open(@temp_csv_path, "rb:#{encoding}", options) do |csv|
+    HBCSV.open(@temp_csv_path, "rb:#{encoding}", options) do |csv|
       csv.each_with_index do |row, i|
         assert_equal(fields[i], row)
       end
     end
     begin
-      CSV.open(@temp_csv_path, "rb:#{encoding}:#{__ENCODING__}", options) do |csv|
+      HBCSV.open(@temp_csv_path, "rb:#{encoding}:#{__ENCODING__}", options) do |csv|
         csv.each_with_index do |row, i|
           assert_equal(orig_fields[i], row)
         end
@@ -297,7 +297,7 @@ class TestCSV::Encodings < TestCSV
     rescue Encoding::ConverterNotFoundError
     end
     options[:encoding] = encoding.name
-    CSV.open(@temp_csv_path, options) do |csv|
+    HBCSV.open(@temp_csv_path, options) do |csv|
       csv.each_with_index do |row, i|
         assert_equal(fields[i], row)
       end
@@ -306,7 +306,7 @@ class TestCSV::Encodings < TestCSV
     options[:external_encoding] = encoding.name
     options[:internal_encoding] = __ENCODING__.name
     begin
-      CSV.open(@temp_csv_path, options) do |csv|
+      HBCSV.open(@temp_csv_path, options) do |csv|
         csv.each_with_index do |row, i|
           assert_equal(orig_fields[i], row)
         end

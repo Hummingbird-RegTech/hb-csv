@@ -8,16 +8,16 @@
 
 require_relative "base"
 
-class TestCSV::Headers < TestCSV
+class TestHBCSV::Headers < TestHBCSV
   extend DifferentOFS
 
   def setup
     super
-    @data = <<-CSV
+    @data = <<-HBCSV
 first,second,third
 A,B,C
 1,2,3
-    CSV
+    HBCSV
   end
 
   def test_first_row
@@ -25,19 +25,19 @@ A,B,C
       # activate headers
       csv = nil
       assert_nothing_raised(Exception) do
-        csv = CSV.parse(@data, headers: setting)
+        csv = HBCSV.parse(@data, headers: setting)
       end
 
       # first data row - skipping headers
       row = csv[0]
       assert_not_nil(row)
-      assert_instance_of(CSV::Row, row)
+      assert_instance_of(HBCSV::Row, row)
       assert_equal([%w{first A}, %w{second B}, %w{third C}], row.to_a)
 
       # second data row
       row = csv[1]
       assert_not_nil(row)
-      assert_instance_of(CSV::Row, row)
+      assert_instance_of(HBCSV::Row, row)
       assert_equal([%w{first 1}, %w{second 2}, %w{third 3}], row.to_a)
 
       # empty
@@ -49,26 +49,26 @@ A,B,C
     # activate headers
     csv = nil
     assert_nothing_raised(Exception) do
-      csv = CSV.parse(@data, headers: [:my, :new, :headers])
+      csv = HBCSV.parse(@data, headers: [:my, :new, :headers])
     end
 
     # first data row - skipping headers
     row = csv[0]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal( [[:my, "first"], [:new, "second"], [:headers, "third"]],
                   row.to_a )
 
     # second data row
     row = csv[1]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([[:my, "A"], [:new, "B"], [:headers, "C"]], row.to_a)
 
     # third data row
     row = csv[2]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([[:my, "1"], [:new, "2"], [:headers, "3"]], row.to_a)
 
     # empty
@@ -76,13 +76,13 @@ A,B,C
 
     # with return and convert
     assert_nothing_raised(Exception) do
-      csv = CSV.parse( @data, headers:           [:my, :new, :headers],
+      csv = HBCSV.parse( @data, headers:           [:my, :new, :headers],
                               return_headers:    true,
                               header_converters: lambda { |h| h.to_s } )
     end
     row = csv[0]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([["my", :my], ["new", :new], ["headers", :headers]], row.to_a)
     assert_predicate(row, :header_row?)
     assert_not_predicate(row, :field_row?)
@@ -92,25 +92,25 @@ A,B,C
     # activate headers
     csv = nil
     assert_nothing_raised(Exception) do
-      csv = CSV.parse(@data, headers: "my,new,headers")
+      csv = HBCSV.parse(@data, headers: "my,new,headers")
     end
 
     # first data row - skipping headers
     row = csv[0]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([%w{my first}, %w{new second}, %w{headers third}], row.to_a)
 
     # second data row
     row = csv[1]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([%w{my A}, %w{new B}, %w{headers C}], row.to_a)
 
     # third data row
     row = csv[2]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([%w{my 1}, %w{new 2}, %w{headers 3}], row.to_a)
 
     # empty
@@ -118,13 +118,13 @@ A,B,C
 
     # with return and convert
     assert_nothing_raised(Exception) do
-      csv = CSV.parse( @data, headers:           "my,new,headers",
+      csv = HBCSV.parse( @data, headers:           "my,new,headers",
                               return_headers:    true,
                               header_converters: :symbol )
     end
     row = csv[0]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([[:my, "my"], [:new, "new"], [:headers, "headers"]], row.to_a)
     assert_predicate(row, :header_row?)
     assert_not_predicate(row, :field_row?)
@@ -134,14 +134,14 @@ A,B,C
     # parse with custom col_sep
     csv = nil
     assert_nothing_raised(Exception) do
-      csv = CSV.parse( @data.tr(",", "|"), col_sep: "|",
+      csv = HBCSV.parse( @data.tr(",", "|"), col_sep: "|",
                                            headers: "my|new|headers" )
     end
 
     # verify headers were recognized
     row = csv[0]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([%w{my first}, %w{new second}, %w{headers third}], row.to_a)
   end
 
@@ -149,13 +149,13 @@ A,B,C
     # activate headers and request they are returned
     csv = nil
     assert_nothing_raised(Exception) do
-      csv = CSV.parse(@data, headers: true, return_headers: true)
+      csv = HBCSV.parse(@data, headers: true, return_headers: true)
     end
 
     # header row
     row = csv[0]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal( [%w{first first}, %w{second second}, %w{third third}],
                   row.to_a )
     assert_predicate(row, :header_row?)
@@ -164,7 +164,7 @@ A,B,C
     # first data row - skipping headers
     row = csv[1]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([%w{first A}, %w{second B}, %w{third C}], row.to_a)
     assert_not_predicate(row, :header_row?)
     assert_predicate(row, :field_row?)
@@ -172,7 +172,7 @@ A,B,C
     # second data row
     row = csv[2]
     assert_not_nil(row)
-    assert_instance_of(CSV::Row, row)
+    assert_instance_of(HBCSV::Row, row)
     assert_equal([%w{first 1}, %w{second 2}, %w{third 3}], row.to_a)
     assert_not_predicate(row, :header_row?)
     assert_predicate(row, :field_row?)
@@ -183,13 +183,13 @@ A,B,C
 
   def test_converters
     # create test data where headers and fields look alike
-    data = <<-CSV
+    data = <<-HBCSV
 1,2,3
 1,2,3
-    CSV
+    HBCSV
 
     # normal converters do not affect headers
-    csv = CSV.parse( data, headers:        true,
+    csv = HBCSV.parse( data, headers:        true,
                            return_headers: true,
                            converters:     :numeric )
     assert_equal([%w{1 1}, %w{2 2}, %w{3 3}], csv[0].to_a)
@@ -198,7 +198,7 @@ A,B,C
 
     # header converters do affect headers (only)
     assert_nothing_raised(Exception) do
-      csv = CSV.parse( data, headers:           true,
+      csv = HBCSV.parse( data, headers:           true,
                              return_headers:    true,
                              converters:        :numeric,
                              header_converters: :symbol )
@@ -209,7 +209,7 @@ A,B,C
   end
 
   def test_builtin_downcase_converter
-    csv = CSV.parse( "One,TWO Three", headers:           true,
+    csv = HBCSV.parse( "One,TWO Three", headers:           true,
                                       return_headers:    true,
                                       header_converters: :downcase )
     assert_equal(%w{one two\ three}, csv.headers)
@@ -217,21 +217,21 @@ A,B,C
 
   def test_builtin_symbol_converter
     # Note that the trailing space is intentional
-    csv = CSV.parse( "One,TWO Three ", headers:           true,
+    csv = HBCSV.parse( "One,TWO Three ", headers:           true,
                                        return_headers:    true,
                                        header_converters: :symbol )
     assert_equal([:one, :two_three], csv.headers)
   end
 
   def test_builtin_symbol_converter_with_punctuation
-    csv = CSV.parse( "One, Two & Three ($)", headers:           true,
+    csv = HBCSV.parse( "One, Two & Three ($)", headers:           true,
                                              return_headers:    true,
                                              header_converters: :symbol )
     assert_equal([:one, :two_three], csv.headers)
   end
 
   def test_builtin_converters_with_blank_header
-    csv = CSV.parse( "one,,three", headers:           true,
+    csv = HBCSV.parse( "one,,three", headers:           true,
                                    return_headers:    true,
                                    header_converters: [:downcase, :symbol] )
     assert_equal([:one, nil, :three], csv.headers)
@@ -239,7 +239,7 @@ A,B,C
 
   def test_custom_converter
     converter = lambda { |header| header.tr(" ", "_") }
-    csv       = CSV.parse( "One,TWO Three",
+    csv       = HBCSV.parse( "One,TWO Three",
                            headers:           true,
                            return_headers:    true,
                            header_converters: converter )
@@ -249,14 +249,14 @@ A,B,C
   def test_table_support
     csv = nil
     assert_nothing_raised(Exception) do
-      csv = CSV.parse(@data, headers: true)
+      csv = HBCSV.parse(@data, headers: true)
     end
 
-    assert_instance_of(CSV::Table, csv)
+    assert_instance_of(HBCSV::Table, csv)
   end
 
   def test_skip_blanks
-    @data = <<-CSV
+    @data = <<-HBCSV
 
 
 A,B,C
@@ -265,15 +265,15 @@ A,B,C
 
 
 
-    CSV
+    HBCSV
 
     expected = [%w[1 2 3]]
-    CSV.parse(@data, headers: true, skip_blanks: true) do |row|
+    HBCSV.parse(@data, headers: true, skip_blanks: true) do |row|
       assert_equal(expected.shift, row.fields)
     end
 
     expected = [%w[A B C], %w[1 2 3]]
-    CSV.parse( @data,
+    HBCSV.parse( @data,
                headers:        true,
                return_headers: true,
                skip_blanks:    true ) do |row|
@@ -283,10 +283,10 @@ A,B,C
 
   def test_headers_reader
     # no headers
-    assert_nil(CSV.new(@data).headers)
+    assert_nil(HBCSV.new(@data).headers)
 
     # headers
-    csv = CSV.new(@data, headers: true)
+    csv = HBCSV.new(@data, headers: true)
     assert_equal(true, csv.headers)                    # before headers are read
     csv.shift                                          # set headers
     assert_equal(%w[first second third], csv.headers)  # after headers are read
@@ -296,19 +296,19 @@ A,B,C
     @data += "\n#{@data}"  # add a blank row
 
     # ensure that everything returned is a Row object
-    CSV.parse(@data, headers: true) do |row|
-      assert_instance_of(CSV::Row, row)
+    HBCSV.parse(@data, headers: true) do |row|
+      assert_instance_of(HBCSV::Row, row)
     end
   end
 
   def test_nil_row_header
-    @data = <<-CSV
+    @data = <<-HBCSV
 A
 
 1
-    CSV
+    HBCSV
 
-    csv = CSV.parse(@data, headers: true)
+    csv = HBCSV.parse(@data, headers: true)
 
     # ensure nil row creates Row object with headers
     row = csv[0]
