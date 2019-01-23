@@ -263,7 +263,7 @@ class TestHBCSV::Encodings < TestHBCSV
   def test_invalid_encoding_row_error
     csv = HBCSV.new("invalid,\xF8\r\nvalid,x\r\n".force_encoding("UTF-8"),
                   encoding: "UTF-8")
-    error = assert_raise(HBCSV::MalformedHBCSVError) do
+    error = assert_raise(HBCSV::MalformedCSVError) do
       csv.shift
     end
     assert_equal("Invalid byte sequence in UTF-8 in line 1.",

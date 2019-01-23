@@ -58,7 +58,7 @@ line,4,jkl
   end
 
   def test_row_sep
-    assert_raise(HBCSV::MalformedHBCSVError) do
+    assert_raise(HBCSV::MalformedCSVError) do
         HBCSV.parse_line("1,2,3\n,4,5\r\n", row_sep: "\r\n")
     end
     assert_equal( ["1", "2", "3\n", "4", "5"],
@@ -159,20 +159,20 @@ line,4,jkl
 
   def test_liberal_parsing
     input = '"Johnson, Dwayne",Dwayne "The Rock" Johnson'
-    assert_raise(HBCSV::MalformedHBCSVError) do
+    assert_raise(HBCSV::MalformedCSVError) do
         HBCSV.parse_line(input)
     end
     assert_equal(["Johnson, Dwayne", 'Dwayne "The Rock" Johnson'],
                  HBCSV.parse_line(input, liberal_parsing: true))
 
     input = '"quoted" field'
-    assert_raise(HBCSV::MalformedHBCSVError) do
+    assert_raise(HBCSV::MalformedCSVError) do
         HBCSV.parse_line(input)
     end
     assert_equal(['"quoted" field'],
                  HBCSV.parse_line(input, liberal_parsing: true))
 
-    assert_raise(HBCSV::MalformedHBCSVError) do
+    assert_raise(HBCSV::MalformedCSVError) do
       HBCSV.parse_line('is,this "three," or four,fields', liberal_parsing: true)
     end
 

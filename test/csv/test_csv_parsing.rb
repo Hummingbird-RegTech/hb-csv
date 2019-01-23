@@ -138,13 +138,13 @@ class TestHBCSV::Parsing < TestHBCSV
       assert_equal(edge_case.last, HBCSV.parse_line(edge_case.first))
     end
 
-    assert_raise(HBCSV::MalformedHBCSVError) do
+    assert_raise(HBCSV::MalformedCSVError) do
       HBCSV.parse_line("1,\"23\"4\"5\", 6")
     end
   end
 
   def test_malformed_csv
-    assert_raise(HBCSV::MalformedHBCSVError) do
+    assert_raise(HBCSV::MalformedCSVError) do
       HBCSV.parse_line("1,2\r,3", row_sep: "\n")
     end
 
@@ -165,12 +165,12 @@ line,5,jkl
         assert_not_nil(csv.shift)
         assert_send([csv.lineno, :<, 4])
       end
-    rescue HBCSV::MalformedHBCSVError
+    rescue HBCSV::MalformedCSVError
       assert_equal( "Unquoted fields do not allow \\r or \\n in line 4.",
                     $!.message )
     end
 
-    assert_raise(HBCSV::MalformedHBCSVError) { HBCSV.parse_line('1,2,"3...') }
+    assert_raise(HBCSV::MalformedCSVError) { HBCSV.parse_line('1,2,"3...') }
 
     bad_data = <<-HBCSV
 line,1,abc
@@ -189,7 +189,7 @@ line,5,jkl
         assert_not_nil(csv.shift)
         assert_send([csv.lineno, :<, 4])
       end
-    rescue HBCSV::MalformedHBCSVError
+    rescue HBCSV::MalformedCSVError
       assert_equal("Illegal quoting in line 4.", $!.message)
     end
   end
@@ -214,7 +214,7 @@ line,5,jkl
       2
       ",""
     DATA
-    assert_nothing_raised(HBCSV::MalformedHBCSVError) do
+    assert_nothing_raised(HBCSV::MalformedCSVError) do
       HBCSV.parse(data, field_size_limit: 4)
     end
   end
@@ -242,7 +242,7 @@ line,5,jkl
   private
 
   def assert_parse_errors_out(*args)
-    assert_raise(HBCSV::MalformedHBCSVError) do
+    assert_raise(HBCSV::MalformedCSVError) do
       Timeout.timeout(0.2) do
         HBCSV.parse(*args)
         fail("Parse didn't error out")

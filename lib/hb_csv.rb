@@ -37,7 +37,7 @@
 # === HBCSV Parsing
 #
 # * This parser is m17n aware.  See HBCSV for full details.
-# * This library has a stricter parser and will throw MalformedHBCSVErrors on
+# * This library has a stricter parser and will throw MalformedCSVErrors on
 #   problematic data.
 # * This library has a less liberal idea of a line ending than HBCSV.  What you
 #   set as the <tt>:row_sep</tt> is law.  It can auto-detect your line endings
@@ -279,7 +279,7 @@ end
 class HBCSV
 
   # The error thrown when the parser encounters illegal HBCSV formatting.
-  class MalformedHBCSVError < RuntimeError
+  class MalformedCSVError < RuntimeError
     attr_reader :line_number
     alias_method :lineno, :line_number
     def initialize(message, line_number)
@@ -807,7 +807,7 @@ class HBCSV
   #                                       the first line ending beyond this
   #                                       size.)  If a quote cannot be found
   #                                       within the limit HBCSV will raise a
-  #                                       MalformedHBCSVError, assuming the data
+  #                                       MalformedCSVError, assuming the data
   #                                       is faulty.  You can use this limit to
   #                                       prevent what are effectively DoS
   #                                       attacks on the parser.  However, this
@@ -1215,7 +1215,7 @@ class HBCSV
       rescue ArgumentError
         unless parse.valid_encoding?
           message = "Invalid byte sequence in #{parse.encoding}"
-          raise MalformedHBCSVError.new(message, lineno + 1)
+          raise MalformedCSVError.new(message, lineno + 1)
         end
         raise
       end
@@ -1259,7 +1259,7 @@ class HBCSV
             # extended column ends
             csv.last << part[0..-2]
             if csv.last.match?(@parsers[:stray_quote])
-              raise MalformedHBCSVError.new("Missing or stray quote",
+              raise MalformedCSVError.new("Missing or stray quote",
                                           lineno + 1)
             end
             csv.last.gsub!(@double_quote_char, @quote_char)
@@ -1277,26 +1277,26 @@ class HBCSV
             # regular quoted column
             csv << part[1..-2]
             if csv.last.match?(@parsers[:stray_quote])
-              raise MalformedHBCSVError.new("Missing or stray quote",
+              raise MalformedCSVError.new("Missing or stray quote",
                                           lineno + 1)
             end
             csv.last.gsub!(@double_quote_char, @quote_char)
           elsif @liberal_parsing
             csv << part
           else
-            raise MalformedHBCSVError.new("Missing or stray quote",
+            raise MalformedCSVError.new("Missing or stray quote",
                                         lineno + 1)
           end
         elsif part.match?(@parsers[:quote_or_nl])
           # Unquoted field with bad characters.
           if part.match?(@parsers[:nl_or_lf])
             message = "Unquoted fields do not allow \\r or \\n"
-            raise MalformedHBCSVError.new(message, lineno + 1)
+            raise MalformedCSVError.new(message, lineno + 1)
           else
             if @liberal_parsing
               csv << part
             else
-              raise MalformedHBCSVError.new("Illegal quoting", lineno + 1)
+              raise MalformedCSVError.new("Illegal quoting", lineno + 1)
             end
           end
         else
@@ -1312,10 +1312,10 @@ class HBCSV
       if in_extended_col
         # if we're at eof?(), a quoted field wasn't closed...
         if @io.eof?
-          raise MalformedHBCSVError.new("Unclosed quoted field",
+          raise MalformedCSVError.new("Unclosed quoted field",
                                       lineno + 1)
         elsif @field_size_limit and csv.last.size >= @field_size_limit
-          raise MalformedHBCSVError.new("Field size exceeded",
+          raise MalformedCSVError.new("Field size exceeded",
                                       lineno + 1)
         end
         # otherwise, we need to loop and pull some more data to complete the row

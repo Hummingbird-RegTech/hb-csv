@@ -81,7 +81,7 @@ class TestHBCSV::Interface < TestHBCSV
       file << "\u{1F600},\u{1F601}"
     end
     HBCSV.open(@path, encoding: "EUC-JP") do |csv|
-      error = assert_raise(HBCSV::MalformedHBCSVError) do
+      error = assert_raise(HBCSV::MalformedCSVError) do
         csv.shift
       end
       assert_equal("Invalid byte sequence in EUC-JP in line 1.",
